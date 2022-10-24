@@ -419,7 +419,6 @@
 		aspeed,pulse-pr = <2>;
 	};
 };
-
 &mdio0 {
 	status = "okay";
 
@@ -434,10 +433,11 @@
 
 	ethphy1: ethernet-phy@0 {
 		compatible = "ethernet-phy-ieee802.3-c22";
-		reg = <0>;
+		reg = <1>;
 	};
 };
 
+/*
 &mdio2 {
 	status = "okay";
 
@@ -455,6 +455,7 @@
 		reg = <0>;
 	};
 };
+*/
 
 &mac0 {
 	status = "okay";
@@ -476,6 +477,7 @@
 	pinctrl-0 = <&pinctrl_rgmii2_default>;
 };
 
+/*
 &mac2 {
 	status = "okay";
 
@@ -495,6 +497,7 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&pinctrl_rgmii4_default>;
 };
+*/
 
 &syscon {
 	mac0-clk-delay = <0x10 0x0a
