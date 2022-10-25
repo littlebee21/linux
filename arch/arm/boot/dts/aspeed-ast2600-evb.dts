@@ -647,6 +647,11 @@
 		compatible = "aspeed,ast2600-ssif-bmc";
 		reg = <0x10>;
 	};
+	eeprom@50 {
+		compatible = "atmel,24c08";
+		reg = <0x50>;
+		pagesize = <16>;
+	};
 };
 
 &i2c5 {
@@ -677,12 +682,15 @@
 		reg = <0x2e>;
 	};
 
+<<<<<<< HEAD
 	eeprom@50 {
 		compatible = "atmel,24c08";
 		reg = <0x50>;
 		pagesize = <16>;
 	};
 
+=======
+>>>>>>> ce6677146af8... <feat>：添加eeprom的设备节点和devmem=true
 };
 
 &i2c8 {
