@@ -4,6 +4,7 @@
  *
  * Interface from the device-specific interfaces (OF, DMI, ACPI, PCI,
  * etc) to the base ipmi system interface code.
+ * **从设备特定接口（OF、DMI、ACPI、PCI等）到基本ipmi系统接口代码的接口。
  */
 
 #ifndef __IPMI_SI_H__
@@ -34,6 +35,7 @@ enum ipmi_addr_space {
  * The structure for doing I/O in the state machine.  The state
  * machine doesn't have the actual I/O routines, they are done through
  * this interface.
+ * *在状态机中进行I/O的结构。状态机没有实际的I/O例程，它们是通过这个接口完成的。
  */
 struct si_sm_io {
 	unsigned char (*inputb)(const struct si_sm_io *io, unsigned int offset);
@@ -45,22 +47,22 @@ struct si_sm_io {
 	 * Generic info used by the actual handling routines, the
 	 * state machine shouldn't touch these.
 	 */
-	void __iomem *addr;
-	unsigned int regspacing;
-	unsigned int regsize;
-	unsigned int regshift;
+	void __iomem *addr;   //io的地址
+	unsigned int regspacing; //寄存器地址
+	unsigned int regsize;    //寄存器大小
+	unsigned int regshift; 
 	enum ipmi_addr_space addr_space;
 	unsigned long addr_data;
 	enum ipmi_addr_src addr_source; /* ACPI, PCI, SMBIOS, hardcode, etc. */
 	union ipmi_smi_info_union addr_info;
 
-	int (*io_setup)(struct si_sm_io *info);
-	void (*io_cleanup)(struct si_sm_io *info);
+	int (*io_setup)(struct si_sm_io *info);  //创建
+	void (*io_cleanup)(struct si_sm_io *info); //清除
 	unsigned int io_size;
 
 	int irq;
-	int (*irq_setup)(struct si_sm_io *io);
-	void *irq_handler_data;
+	int (*irq_setup)(struct si_sm_io *io);  //软中断创建
+	void *irq_handler_data;                  //终端接受数据
 	void (*irq_cleanup)(struct si_sm_io *io);
 
 	u8 slave_addr;

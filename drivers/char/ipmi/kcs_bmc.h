@@ -15,6 +15,8 @@
 #define KCS_BMC_STR_IBF		BIT(1)
 #define KCS_BMC_STR_CMD_DAT	BIT(3)
 
+// 这个文件主要应该是名词， 结构体的声明文件,
+// 而对应的函数名称的操作的位置在 kcs_bmc_client的文件当中
 /* IPMI 2.0 - 9.5, KCS Interface Registers
  * @idr: Input Data Register
  * @odr: Output Data Register

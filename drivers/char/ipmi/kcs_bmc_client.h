@@ -1,5 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0 */
 /* Copyright (c) 2021, IBM Corp. */
+//对应的结构体的位置在 kcs_bmc.h中
 
 #ifndef __KCS_BMC_CONSUMER_H__
 #define __KCS_BMC_CONSUMER_H__

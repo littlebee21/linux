@@ -87,14 +87,15 @@ enum smic_states {
 #define	EC_ILLEGAL_COMMAND	0x04
 #define	EC_BUFFER_FULL		0x05
 
+//软中断的sm数据
 struct si_sm_data {
-	enum smic_states state;
-	struct si_sm_io *io;
+	enum smic_states state;  //状态
+	struct si_sm_io *io;     //
 	unsigned char	 write_data[MAX_SMIC_WRITE_SIZE];
-	int		 write_pos;
-	int		 write_count;
-	int		 orig_write_count;
-	unsigned char	 read_data[MAX_SMIC_READ_SIZE];
+	int		 write_pos;     //写位置
+	int		 write_count;   //写计数
+	int		 orig_write_count;  //写计数
+	unsigned char	 read_data[MAX_SMIC_READ_SIZE]; //读数据
 	int		 read_pos;
 	int		 truncated;
 	unsigned int	 error_retries;
@@ -574,6 +575,7 @@ static int smic_size(void)
 	return sizeof(struct si_sm_data);
 }
 
+//总的中断处理函数 接口注册
 const struct si_sm_handlers smic_smi_handlers = {
 	.init_data         = init_smic_data,
 	.start_transaction = start_smic_transaction,

@@ -27,6 +27,7 @@
 #define MSG_PAYLOAD_LEN_MAX			252
 
 /* A standard SMBus Transaction is limited to 32 data bytes */
+// 一个标准的SMBus 传输限制在32 数据byte
 #define MAX_PAYLOAD_PER_TRANSACTION		32
 
 #define MAX_IPMI_DATA_PER_START_TRANSACTION	30
@@ -56,16 +57,18 @@ static inline u32 ssif_msg_len(struct ssif_msg *ssif_msg)
 #define SSIF_BMC_READY  0x02
 
 struct ssif_bmc_ctx {
-	struct i2c_client	*client;
+	struct i2c_client	*client;  //I2C的客户端
 	struct miscdevice	miscdev;
 	u8			smbus_cmd;
 	struct ssif_msg		request;
 	bool			request_available;
 	struct ssif_msg		response;
 	bool			response_in_progress;
-	/* Response buffer for Multi-part Read Transaction */
+	/* Response buffer for Multi-part Read Transaction */ 
+	///*多部分读取事务的响应缓冲区*/
 	u8			response_buf[MAX_PAYLOAD_PER_TRANSACTION];
 	/* Flag to identify a Multi-part Read Transaction */
+	/*标识多部分读取事务的标志*/
 	bool			is_singlepart_read;
 	u8			nbytes_processed;
 	u8			remain_len;

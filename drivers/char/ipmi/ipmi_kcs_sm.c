@@ -15,6 +15,7 @@
  * This state machine is taken from the state machine in the IPMI spec,
  * pretty much verbatim.  If you have questions about the states, see
  * that document.
+ * *该状态机取自IPMI规范中的状态机，*几乎逐字逐句。如果您对州有疑问，请参阅*该文档。
  */
 
 #define DEBUG /* So dev_dbg() is always available. */
@@ -293,6 +294,7 @@ static int start_kcs_transaction(struct si_sm_data *kcs, unsigned char *data,
 	return 0;
 }
 
+//获取kcs的结果阅读
 static int get_kcs_result(struct si_sm_data *kcs, unsigned char *data,
 			  unsigned int length)
 {
@@ -526,9 +528,9 @@ static void kcs_cleanup(struct si_sm_data *kcs)
 }
 
 const struct si_sm_handlers kcs_smi_handlers = {
-	.init_data         = init_kcs_data,
-	.start_transaction = start_kcs_transaction,
-	.get_result        = get_kcs_result,
+	.init_data         = init_kcs_data,    //初始化数据
+	.start_transaction = start_kcs_transaction, //开始kcs传输的
+	.get_result        = get_kcs_result,    //获取kcs的结果
 	.event             = kcs_event,
 	.detect            = kcs_detect,
 	.cleanup           = kcs_cleanup,

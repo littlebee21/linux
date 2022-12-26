@@ -73,6 +73,8 @@ static void mem_cleanup(struct si_sm_io *io)
 	}
 }
 
+//内存操作的的初始化
+//将这些已经写好的函数注册搭配到结构体当中
 int ipmi_si_mem_setup(struct si_sm_io *io)
 {
 	unsigned long addr = io->addr_data;

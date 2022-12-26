@@ -12,6 +12,7 @@
 #include "kcs_bmc.h"
 
 /* Implement both the device and client interfaces here */
+// 实现设备和客户端接口
 #include "kcs_bmc_device.h"
 #include "kcs_bmc_client.h"
 
@@ -21,13 +22,36 @@ static LIST_HEAD(kcs_bmc_devices);
 static LIST_HEAD(kcs_bmc_drivers);
 
 /* Consumer data access */
+// 这个函数相比较算是比较上层的代码：
+// 定义的位置
+// 统一暴露的接口，如果别人想用这个接口就会使用这个接口
+// ./kcs_bmc.c:u8 kcs_bmc_read_data(struct kcs_bmc_device *kcs_bmc)
+// ./kcs_bmc.c:EXPORT_SYMBOL(kcs_bmc_read_data);
 
+//调用的位置
+// ./kcs_bmc_cdev_raw.c:           priv->idr = kcs_bmc_read_data(client->dev);
+// ./kcs_bmc_cdev_raw.c:                   priv->idr = kcs_bmc_read_data(kcs_bmc);
+// ./kcs_bmc_cdev_ipmi.c:  kcs_bmc_read_data(priv->client.dev);
+// ./kcs_bmc_cdev_ipmi.c:                  priv->data_in[priv->data_in_idx++] = kcs_bmc_read_data(dev);
+// ./kcs_bmc_cdev_ipmi.c:                  priv->data_in[priv->data_in_idx++] = kcs_bmc_read_data(dev);
+// ./kcs_bmc_cdev_ipmi.c:          data = kcs_bmc_read_data(dev);
+// ./kcs_bmc_cdev_ipmi.c:          kcs_bmc_read_data(dev);
+// ./kcs_bmc_cdev_ipmi.c:          kcs_bmc_read_data(dev);
+// ./kcs_bmc_cdev_ipmi.c:  cmd = kcs_bmc_read_data(priv->client.dev);
+
+//声明的位置
+// ./kcs_bmc_client.h:u8 kcs_bmc_read_data(struct kcs_bmc_device *kcs_bmc);
+//  调用的位置：中断执行的时候会调用的位置
+// ./kcs_bmc_serio.c:              handled = serio_interrupt(priv->port, kcs_bmc_read_data(client->dev), 0);
+
+// 实现的接口函数，本质还是调用我们编写的ops->io_input
 u8 kcs_bmc_read_data(struct kcs_bmc_device *kcs_bmc)
 {
 	return kcs_bmc->ops->io_inputb(kcs_bmc, kcs_bmc->ioreg.idr);
 }
 EXPORT_SYMBOL(kcs_bmc_read_data);
 
+//写入
 void kcs_bmc_write_data(struct kcs_bmc_device *kcs_bmc, u8 data)
 {
 	kcs_bmc->ops->io_outputb(kcs_bmc, kcs_bmc->ioreg.odr, data);
@@ -52,6 +76,8 @@ void kcs_bmc_update_status(struct kcs_bmc_device *kcs_bmc, u8 mask, u8 val)
 }
 EXPORT_SYMBOL(kcs_bmc_update_status);
 
+//中断的处理函数：本事还是调用
+// rc = client->ops->event(client); 对应的处理客户端当中的ops指令
 irqreturn_t kcs_bmc_handle_event(struct kcs_bmc_device *kcs_bmc)
 {
 	struct kcs_bmc_client *client;
@@ -160,6 +186,7 @@ void kcs_bmc_register_driver(struct kcs_bmc_driver *drv)
 }
 EXPORT_SYMBOL(kcs_bmc_register_driver);
 
+//卸载这个驱动
 void kcs_bmc_unregister_driver(struct kcs_bmc_driver *drv)
 {
 	struct kcs_bmc_device *kcs_bmc;
@@ -168,6 +195,7 @@ void kcs_bmc_unregister_driver(struct kcs_bmc_driver *drv)
 	mutex_lock(&kcs_bmc_lock);
 	list_del(&drv->entry);
 	list_for_each_entry(kcs_bmc, &kcs_bmc_devices, entry) {
+		//还是通过别人实现的方式进行调用
 		rc = drv->ops->remove_device(kcs_bmc);
 		if (rc)
 			dev_err(kcs_bmc->dev, "Failed to remove driver for KCS channel %d: %d",

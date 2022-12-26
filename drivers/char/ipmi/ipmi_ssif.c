@@ -4,7 +4,8 @@
  *
  * The interface to the IPMI driver for SMBus access to a SMBus
  * compliant device.  Called SSIF by the IPMI spec.
- *
+ **用于SMBus访问SMBus*兼容设备的IPMI驱动程序接口。由IPMI规范调用SSIF。
+
  * Author: Intel Corporation
  *         Todd Davis <todd.c.davis@intel.com>
  *
@@ -21,7 +22,8 @@
  * machine.  It does the configuration, handles timers and interrupts,
  * and drives the real SSIF state machine.
  */
-
+/**此文件保存SSIF状态*机器接口的“策略”。它执行配置，处理计时器和中断，*并驱动真正的SSIF状态机*/
+// SMBUS 系统总线
 #define pr_fmt(fmt) "ipmi_ssif: " fmt
 #define dev_fmt(fmt) "ipmi_ssif: " fmt
 
@@ -62,8 +64,8 @@
 
 /* ssif_debug is a bit-field
  *	SSIF_DEBUG_MSG -	commands and their responses
- *	SSIF_DEBUG_STATES -	message states
- *	SSIF_DEBUG_TIMING -	 Measure times between events in the driver
+ *	SSIF_DEBUG_STATES -	message states   状态
+ *	SSIF_DEBUG_TIMING -	 Measure times between events in the driver 测量驱动程序事件的时间
  */
 #define SSIF_DEBUG_TIMING	4
 #define SSIF_DEBUG_STATE	2
@@ -113,16 +115,19 @@ enum ssif_stat_indexes {
 	/*
 	 * Number of message parts sent.  Messages may be broken into
 	 * parts if they are long.
+	 * 发送的消息部分数。如果消息很长，可能会分成*部分
 	 */
 	SSIF_STAT_sent_messages_parts,
 
 	/*
 	 * Number of time a message was retried.
+	 重试的次数
 	 */
 	SSIF_STAT_send_retries,
 
 	/*
 	 * Number of times the send of a message failed.
+	 发送的错误次数
 	 */
 	SSIF_STAT_send_errors,
 
@@ -215,6 +220,7 @@ struct ssif_info {
 	 * is set to hold the flags until we are done handling everything
 	 * from the flags.
 	 */
+	// *最后一个GET_MSG_Flags命令中的标志，当ATTN*设置为保留标志时使用，直到处理完标志中的所有内容*
 #define RECEIVE_MSG_AVAIL	0x01
 #define EVENT_MSG_BUFFER_FULL	0x02
 #define WDT_PRE_TIMEOUT_INT	0x08
@@ -227,6 +233,7 @@ struct ssif_info {
 	/*
 	 * Used to tell what we should do with alerts.  If we are
 	 * waiting on a response, read the data immediately.
+	 * 用来告诉我们应该如何处理警报。如果我们正在等待响应，请立即读取数据
 	 */
 	bool		    got_alert;
 	bool		    waiting_alert;
@@ -234,6 +241,7 @@ struct ssif_info {
 	/*
 	 * If set to true, this will request events the next time the
 	 * state machine is idle.
+	 * *如果设置为true，这将在下次*状态机空闲时请求事件。
 	 */
 	bool                req_events;
 

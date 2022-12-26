@@ -2,6 +2,7 @@
 /*
  * Copyright (c) 2015-2018, Intel Corporation.
  */
+//接口实现的函数的位置，
 
 #define pr_fmt(fmt) "aspeed-kcs-bmc: " fmt
 
@@ -38,6 +39,8 @@
  * IDyIRQX	Use the specified 4-bit SerIRQ for LPC channel y
  * SELyIRQX	SerIRQ polarity for LPC channel y (low: 0, high: 1)
  * IRQXEy	Assert the SerIRQ specified in IDyIRQX for LPC channel y
+ * 
+ * 
  */
 
 #define LPC_TYIRQX_LOW       0b00
@@ -138,6 +141,7 @@ static inline struct aspeed_kcs_bmc *to_aspeed_kcs_bmc(struct kcs_bmc_device *kc
 	return container_of(kcs_bmc, struct aspeed_kcs_bmc, kcs_bmc);
 }
 
+//输入的处理函数
 static u8 aspeed_kcs_inb(struct kcs_bmc_device *kcs_bmc, u32 reg)
 {
 	struct aspeed_kcs_bmc *priv = to_aspeed_kcs_bmc(kcs_bmc);
@@ -297,15 +301,31 @@ static inline int aspeed_kcs_map_serirq_type(u32 dt_type)
 		return -EINVAL;
 	}
 }
-
+// 调用的位置 id 是11 dt_type是8
+// rc = aspeed_kcs_config_upstream_irq(priv, upstream_irq[0], upstream_irq[1]);
 static int aspeed_kcs_config_upstream_irq(struct aspeed_kcs_bmc *priv, u32 id, u32 dt_type)
 {
 	unsigned int mask, val, hw_type;
 	int ret;
 
+	// 不能大于15
 	if (id > 15)
 		return -EINVAL;
 
+	//类型进行转换
+	// 	static inline int aspeed_kcs_map_serirq_type(u32 dt_type)
+	// {
+	// 	switch (dt_type) {
+	// 	case IRQ_TYPE_EDGE_RISING:
+	// 		return LPC_TYIRQX_RISING;
+	// 	case IRQ_TYPE_LEVEL_HIGH:
+	// 		return LPC_TYIRQX_HIGH;
+	// 	case IRQ_TYPE_LEVEL_LOW:
+	// 		return LPC_TYIRQX_LOW;
+	// 	default:
+	// 		return -EINVAL;
+	// 	}
+	// }
 	ret = aspeed_kcs_map_serirq_type(dt_type);
 	if (ret < 0)
 		return ret;
@@ -313,11 +333,14 @@ static int aspeed_kcs_config_upstream_irq(struct aspeed_kcs_bmc *priv, u32 id, u
 
 	priv->upstream_irq.mode = aspeed_kcs_irq_serirq;
 	priv->upstream_irq.id = id;
+	//将这条内容进行读取到 priv的变量中
 
+	//可以看到12等等的这些通道配置这些东西，都是没有用的，他不会去进行配置
 	switch (priv->kcs_bmc.channel) {
 	case 1:
 	case 6:
 		/* Needs IRQxE1 rather than (ID1IRQX, SEL1IRQX, IRQXE1) before AST2600 A3 */
+		/*在ASTM2600 A3之前需要IRQxE1而不是（ID1IRQX、SEL1IRQ X、IRQxE1）*/
 		break;
 	case 2:
 	case 7:
@@ -356,7 +379,7 @@ static int aspeed_kcs_config_upstream_irq(struct aspeed_kcs_bmc *priv, u32 id, u
 
 	return 0;
 }
-
+//开启通道。 1234之外的通道要单独配置寄存器
 static void aspeed_kcs_enable_channel(struct kcs_bmc_device *kcs_bmc, bool enable)
 {
 	struct aspeed_kcs_bmc *priv = to_aspeed_kcs_bmc(kcs_bmc);
@@ -386,6 +409,9 @@ static void aspeed_kcs_enable_channel(struct kcs_bmc_device *kcs_bmc, bool enabl
 	}
 }
 
+
+//检查是否满了的标志位
+//满了会去调用
 static void aspeed_kcs_check_obe(struct timer_list *timer)
 {
 	struct aspeed_kcs_bmc *priv = container_of(timer, struct aspeed_kcs_bmc, obe.timer);
@@ -409,18 +435,26 @@ static void aspeed_kcs_check_obe(struct timer_list *timer)
 	kcs_bmc_handle_event(&priv->kcs_bmc);
 }
 
+//更新中断的标志位
+//其中6之后的标志位需要手动的清除
+//aspeed_kcs_irq_mask_update(kcs_bmc, (KCS_BMC_EVENT_TYPE_IBF | KCS_BMC_EVENT_TYPE_OBE), 0);
 static void aspeed_kcs_irq_mask_update(struct kcs_bmc_device *kcs_bmc, u8 mask, u8 state)
 {
 	struct aspeed_kcs_bmc *priv = to_aspeed_kcs_bmc(kcs_bmc);
 
 	/* We don't have an OBE IRQ, emulate it */
+	/*我们没有OBE IRQ，模仿它*/
+	// 我们没有这个东西？？？？手动设置的一个标志位，OBE
 	if (mask & KCS_BMC_EVENT_TYPE_OBE) {
 		if (KCS_BMC_EVENT_TYPE_OBE & state)
+			//如果确实存在，就修改时间
 			mod_timer(&priv->obe.timer, jiffies + OBE_POLL_PERIOD);
 		else
+			//如果不存在就删除时间
 			del_timer(&priv->obe.timer);
 	}
 
+	//按照通道去设置 
 	if (mask & KCS_BMC_EVENT_TYPE_IBF) {
 		const bool enable = !!(state & KCS_BMC_EVENT_TYPE_IBF);
 
@@ -452,6 +486,7 @@ static void aspeed_kcs_irq_mask_update(struct kcs_bmc_device *kcs_bmc, u8 mask, 
 	}
 }
 
+//所有的kcs的处理的函数总接口
 static const struct kcs_bmc_device_ops aspeed_kcs_ops = {
 	.irq_mask_update = aspeed_kcs_irq_mask_update,
 	.io_inputb = aspeed_kcs_inb,
@@ -459,13 +494,14 @@ static const struct kcs_bmc_device_ops aspeed_kcs_ops = {
 	.io_updateb = aspeed_kcs_updateb,
 };
 
+//中断的处理函数
 static irqreturn_t aspeed_kcs_irq(int irq, void *arg)
 {
 	struct kcs_bmc_device *kcs_bmc = arg;
 
 	return kcs_bmc_handle_event(kcs_bmc);
 }
-
+//配置host-》lpc的中断
 static int aspeed_kcs_config_downstream_irq(struct kcs_bmc_device *kcs_bmc,
 			struct platform_device *pdev)
 {
@@ -636,6 +672,7 @@ static int aspeed_kcs_probe(struct platform_device *pdev)
 	timer_setup(&priv->obe.timer, aspeed_kcs_check_obe, 0);
 
 	/* mask IRQ for safety */
+	//这两个位置都设置成0
 	aspeed_kcs_irq_mask_update(kcs_bmc, (KCS_BMC_EVENT_TYPE_IBF | KCS_BMC_EVENT_TYPE_OBE), 0);
 
 	rc = aspeed_kcs_set_address(kcs_bmc, addrs, nr_addrs);
@@ -643,11 +680,13 @@ static int aspeed_kcs_probe(struct platform_device *pdev)
 		return rc;
 
 	/* Host to BMC IRQ */
+	// 这个是 34 35 那个地址
 	rc = aspeed_kcs_config_downstream_irq(kcs_bmc, pdev);
 	if (rc)
 		return rc;
 
 	/* BMC to Host IRQ */
+	// 这个是 11 8 的那个
 	if (have_upstream_irq) {
 		rc = aspeed_kcs_config_upstream_irq(priv, upstream_irq[0], upstream_irq[1]);
 		if (rc < 0)

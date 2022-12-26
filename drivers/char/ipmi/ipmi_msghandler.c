@@ -50,6 +50,7 @@ static int handle_one_recv_msg(struct ipmi_smi *intf,
 static bool initialized;
 static bool drvregistered;
 
+/*此枚举器中的数字应映射到ipmi_panic_event_str*/
 /* Numbers in this enumerator should be mapped to ipmi_panic_event_str */
 enum ipmi_panic_event_op {
 	IPMI_SEND_PANIC_EVENT_NONE,
@@ -425,14 +426,17 @@ enum ipmi_stat_indexes {
 struct ipmi_smi {
 	struct module *owner;
 
-	/* What interface number are we? */
+	/* What interface number are we? */ 
+	// 接口数字
 	int intf_num;
 
 	struct kref refcount;
 
+	// 设置当接口被卸载
 	/* Set when the interface is being unregistered. */
 	bool in_shutdown;
 
+	
 	/* Used for a list of interfaces. */
 	struct list_head link;
 

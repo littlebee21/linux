@@ -1936,6 +1936,7 @@ out_err:
  * held, primarily to keep smi_num consistent, we only one to do these
  * one at a time.
  */
+//总：对中断处理函数进行注册：
 static int try_smi_init(struct smi_info *new_smi)
 {
 	int rv = 0;

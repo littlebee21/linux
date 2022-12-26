@@ -7,6 +7,7 @@
 
 static bool parisc_registered;
 
+// 处理器的初始化
 static int __init ipmi_parisc_probe(struct parisc_device *dev)
 {
 	struct si_sm_io io;
@@ -40,7 +41,8 @@ static const struct parisc_device_id ipmi_parisc_tbl[] __initconst = {
 };
 
 MODULE_DEVICE_TABLE(parisc, ipmi_parisc_tbl);
-
+//处理器的驱动， 一旦出现这种__下滑线开头的就是系统本身要去调用的东西啦
+//在当前模块里面应该是找不到的
 static struct parisc_driver ipmi_parisc_driver __refdata = {
 	.name =		"ipmi",
 	.id_table =	ipmi_parisc_tbl,

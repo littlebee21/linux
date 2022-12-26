@@ -36,10 +36,12 @@ static bool          si_trydmi = false;
 module_param_named(tryplatform, si_tryplatform, bool, 0);
 MODULE_PARM_DESC(tryplatform,
 		 "Setting this to zero will disable the default scan of the interfaces identified via platform interfaces besides ACPI, OpenFirmware, and DMI");
+//“将此设置为零将禁用通过ACPI、OpenFirmware和DMI以外的平台接口识别的接口的默认扫描”）；
 #ifdef CONFIG_ACPI
 module_param_named(tryacpi, si_tryacpi, bool, 0);
 MODULE_PARM_DESC(tryacpi,
 		 "Setting this to zero will disable the default scan of the interfaces identified via ACPI");
+//  “将此设置为零将禁用通过ACPI识别的接口的默认扫描”）；
 #endif
 #ifdef CONFIG_OF
 module_param_named(tryopenfirmware, si_tryopenfirmware, bool, 0);
@@ -444,6 +446,7 @@ static const struct platform_device_id si_plat_ids[] = {
 	{ }
 };
 
+//ipmi平台的驱动
 struct platform_driver ipmi_platform_driver = {
 	.driver = {
 		.name = SI_DEVICE_NAME,
